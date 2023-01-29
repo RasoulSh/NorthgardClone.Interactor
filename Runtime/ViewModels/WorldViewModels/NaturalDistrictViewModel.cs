@@ -1,4 +1,5 @@
 ﻿using System;
+using Northgard.Interactor.Enums.WorldEnums;
 using UnityEngine;
 
 namespace Northgard.Interactor.ViewModels.WorldViewModels
@@ -9,5 +10,6 @@ namespace Northgard.Interactor.ViewModels.WorldViewModels
         public string Name { get; set; }
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
+        public string NaturalResourceName { get; set; }
     }
 }

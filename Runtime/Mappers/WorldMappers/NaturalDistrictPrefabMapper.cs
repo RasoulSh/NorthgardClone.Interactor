@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using JetBrains.Annotations;
 using Northgard.GameWorld.Abstraction;
 using Northgard.GameWorld.Entities;
 using Northgard.Interactor.Common.Mapper;
@@ -7,6 +8,7 @@ using Zenject;
 
 namespace Northgard.Interactor.Mappers.WorldMappers
 {
+    [UsedImplicitly]
     internal class NaturalDistrictPrefabMapper : IMapper<NaturalDistrict, NaturalDistrictPrefabViewModel>
     {
         [Inject] private IWorldPipelineService _worldPipeline;

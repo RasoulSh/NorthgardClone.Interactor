@@ -2,6 +2,7 @@
     "name": "Northgard.Interactor",
     "rootNamespace": "Northgard.Interactor",
     "references": [
+        "GUID:20fa240a0eb0c734fbe4031eda1b044b",
         "GUID:3f1c9b64ec41b3840939cee8c0cd62c7",
         "GUID:0d8beb7f090555447a6cf5ce9e54dbb4"
     ],
