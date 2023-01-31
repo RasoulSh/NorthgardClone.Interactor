@@ -1,6 +1,7 @@
 ﻿using Northgard.GameWorld.Entities;
 using Northgard.Interactor.Abstraction;
 using Northgard.Interactor.Common.Mapper;
+using Northgard.Interactor.Controllers;
 using Northgard.Interactor.Mappers.WorldMappers;
 using Northgard.Interactor.ViewModels.WorldViewModels;
 using Zenject;
@@ -23,7 +24,7 @@ namespace Northgard.Interactor
             #endregion
 
             #region Controllers
-            Container.Bind<IWorldEditorController>().To<IWorldEditorController>().FromNew().AsSingle();
+            Container.Bind<IWorldEditorController>().To<WorldEditorController>().FromNew().AsSingle();
             #endregion
         }
     }
