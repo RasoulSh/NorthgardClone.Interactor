@@ -2,6 +2,7 @@
 using System.Linq;
 using JetBrains.Annotations;
 using Northgard.GameWorld.Abstraction;
+using Northgard.GameWorld.Abstraction.Behaviours;
 using Northgard.GameWorld.Data;
 using Northgard.GameWorld.Entities;
 using Northgard.Interactor.Abstraction;
@@ -18,7 +19,6 @@ namespace Northgard.Interactor.Controllers
     internal class WorldEditorController : IWorldEditorController
     {
         [Inject] private ILogger _logger;
-        [Inject] private IWorldEditorService _worldEditor;
         [Inject] private IWorldPipelineService _worldPipeline;
         [Inject] private IMapper<World, WorldPrefabViewModel> _worldPrefabMapper;
         [Inject] private IMapper<Territory, TerritoryPrefabViewModel> _territoryPrefabMapper;
@@ -26,6 +26,7 @@ namespace Northgard.Interactor.Controllers
         [Inject] private IReadOnlyMapper<World, WorldViewModel> _worldMapper;
         [Inject] private IReadOnlyMapper<Territory, TerritoryViewModel> _territoryMapper;
         [Inject] private IReadOnlyMapper<NaturalDistrict, NaturalDistrictViewModel> _naturalDistrictMapper;
+        private IWorldEditorService _worldEditor;
 
         public IEnumerable<WorldPrefabViewModel> WorldPrefabs =>
             _worldPipeline.WorldPrefabs.Select(_worldPrefabMapper.MapToTarget);
@@ -35,6 +36,25 @@ namespace Northgard.Interactor.Controllers
         
         public IEnumerable<NaturalDistrictPrefabViewModel> NaturalDistrictPrefabs =>
             _worldPipeline.NaturalDistrictPrefabs.Select(_naturalDistrictPrefabMapper.MapToTarget);
+
+        public event TerritoryViewModel.TerritoryDelegate OnTerritoryAdded;
+
+        [Inject]
+        private void Init(IWorldEditorService worldEditor)
+        {
+            _worldEditor = worldEditor;
+            _worldEditor.OnTerritoryAdded += _OnTerritoryAdded;
+        }
+
+        public WorldEditorController()
+        {
+
+        }
+        
+        private void _OnTerritoryAdded(ITerritoryBehaviour territoryBehaviour)
+        {
+            OnTerritoryAdded?.Invoke( _territoryMapper.MapToTarget(territoryBehaviour.Data));
+        }
 
         public void SelectWorld(SelectWorldViewModel selectData)
         {
@@ -170,6 +190,12 @@ namespace Northgard.Interactor.Controllers
             }
             _worldPipeline.Initialize();
             return _worldMapper.MapToTarget(_worldPipeline.World.Data);
+        }
+
+        public TC AddComponentToTerritory<TC>(string territoryId) where TC : Component
+        {
+            var territory = _worldPipeline.FindTerritory(territoryId);
+            return territory.AddComponent<TC>();
         }
     }
 }
