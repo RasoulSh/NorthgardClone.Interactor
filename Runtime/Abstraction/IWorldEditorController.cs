@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Northgard.Interactor.Enums.WorldEnums;
 using Northgard.Interactor.ViewModels.WorldViewModels;
 using UnityEngine;
 
@@ -17,5 +18,6 @@ namespace Northgard.Interactor.Abstraction
         void SaveWorld(string savedName);
         WorldViewModel LoadWorld(string savedName);
         TC AddComponentToTerritory<TC>(string territoryId) where TC : Component;
+        IEnumerable<WorldDirection> GetTerritoryAvailableDirections(string territoryId);
     }
 }

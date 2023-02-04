@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Northgard.GameWorld.Abstraction;
@@ -7,6 +8,7 @@ using Northgard.GameWorld.Data;
 using Northgard.GameWorld.Entities;
 using Northgard.Interactor.Abstraction;
 using Northgard.Interactor.Common.Mapper;
+using Northgard.Interactor.Common.WorldUtilities;
 using Northgard.Interactor.Enums.WorldEnums;
 using Northgard.Interactor.ViewModels.WorldViewModels;
 using UnityEngine;
@@ -46,11 +48,6 @@ namespace Northgard.Interactor.Controllers
             _worldEditor.OnTerritoryAdded += _OnTerritoryAdded;
         }
 
-        public WorldEditorController()
-        {
-
-        }
-        
         private void _OnTerritoryAdded(ITerritoryBehaviour territoryBehaviour)
         {
             OnTerritoryAdded?.Invoke( _territoryMapper.MapToTarget(territoryBehaviour.Data));
@@ -98,7 +95,7 @@ namespace Northgard.Interactor.Controllers
             var territoryBounds = territoryPrefab.Bounds;
             var startPosition = worldBounds.min + territoryBounds.extents + Vector3.up * (worldBounds.size.y + territoryBounds.size.y + 0.1f);
             newTerritory.SetPosition(startPosition);
-            _worldPipeline.World.AddTerritory(newTerritory);
+            _worldPipeline.World.AddTerritory(newTerritory, Vector2Int.zero);
             return _territoryMapper.MapToTarget(newTerritory.Data);
         }
 
@@ -127,26 +124,31 @@ namespace Northgard.Interactor.Controllers
             var territoryBounds = territoryPrefab.Bounds;
             
             Vector3 positionShift = Vector2.zero;
+            Vector2Int pointShift = Vector2Int.zero;
 
             switch (createData.Direction)
             {
                 case WorldDirection.East:
                     positionShift.x += sourceBounds.extents.x + territoryBounds.extents.x;
+                    pointShift.x++;
                     break;
                 case WorldDirection.North:
                     positionShift.z += sourceBounds.extents.z + territoryBounds.extents.z;
+                    pointShift.y++;
                     break;
                 case WorldDirection.South:
-                    positionShift.z -= sourceBounds.extents.z - territoryBounds.extents.z;
+                    positionShift.z -= sourceBounds.extents.z + territoryBounds.extents.z;
+                    pointShift.y--;
                     break;
                 case WorldDirection.West:
-                    positionShift.x -= sourceBounds.extents.x - territoryBounds.extents.x;
+                    positionShift.x -= sourceBounds.extents.x + territoryBounds.extents.x;
+                    pointShift.x--;
                     break;
             }
             newTerritory.SetPosition(sourceTerritory.Data.position + positionShift);
-            sourceTerritory.AddTerritoryConnection(newTerritory);
-            newTerritory.AddTerritoryConnection(sourceTerritory);
-            _worldPipeline.World.AddTerritory(newTerritory);
+            // sourceTerritory.AddTerritoryConnection(newTerritory, (GameWorld.Enums.WorldDirection)createData.Direction);
+            // newTerritory.AddTerritoryConnection(sourceTerritory, (GameWorld.Enums.WorldDirection)WorldDirectionUtil.OpposeDirection(createData.Direction));
+            _worldPipeline.World.AddTerritory(newTerritory, sourceTerritory.Data.pointInWorld + pointShift);
             return _territoryMapper.MapToTarget(newTerritory.Data);
         }
 
@@ -196,6 +198,33 @@ namespace Northgard.Interactor.Controllers
         {
             var territory = _worldPipeline.FindTerritory(territoryId);
             return territory.AddComponent<TC>();
+        }
+
+        public IEnumerable<WorldDirection> GetTerritoryAvailableDirections(string territoryId)
+        {
+            var filteredDirections = (Enum.GetValues(typeof(GameWorld.Enums.WorldDirection)) as GameWorld.Enums.WorldDirection[]).ToList();
+            var world = _worldPipeline.World;
+            var worldTerritories = world.Territories;
+            var territory = _worldPipeline.FindTerritory(territoryId);
+            var pointInWorld = territory.Data.pointInWorld;
+            if (pointInWorld.x == world.Data.size.x - 1 || worldTerritories[pointInWorld.x + 1][pointInWorld.y] != null)
+            {
+                filteredDirections.Remove(GameWorld.Enums.WorldDirection.East);
+            }
+            if (pointInWorld.x == 0 || worldTerritories[pointInWorld.x - 1][pointInWorld.y] != null)
+            {
+                filteredDirections.Remove(GameWorld.Enums.WorldDirection.West);
+            }
+            if (pointInWorld.y == world.Data.size.y - 1 || worldTerritories[pointInWorld.x][pointInWorld.y + 1] != null)
+            {
+                filteredDirections.Remove(GameWorld.Enums.WorldDirection.North);
+            }
+
+            if (pointInWorld.y == 0 || worldTerritories[pointInWorld.x][pointInWorld.y - 1] != null)
+            {
+                filteredDirections.Remove(GameWorld.Enums.WorldDirection.South);
+            }
+            return filteredDirections.Select(d => (WorldDirection)d);
         }
     }
 }
