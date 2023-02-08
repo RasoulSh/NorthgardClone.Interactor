@@ -11,6 +11,7 @@ namespace Northgard.Interactor.Abstraction
         public IEnumerable<TerritoryPrefabViewModel> TerritoryPrefabs { get; }
         public IEnumerable<NaturalDistrictPrefabViewModel> NaturalDistrictPrefabs { get; }
         event TerritoryViewModel.TerritoryDelegate OnTerritoryAdded;
+        event NaturalDistrictViewModel.NaturalDistrictDelegate OnNaturalDistrictAdded;
         void SelectWorld(SelectWorldViewModel selectData);
         TerritoryViewModel SelectFirstTerritory(SelectFirstTerritoryViewModel selectData);
         TerritoryViewModel NewTerritory(CreateTerritoryViewModel createData);
@@ -18,6 +19,7 @@ namespace Northgard.Interactor.Abstraction
         void SaveWorld(string savedName);
         WorldViewModel LoadWorld(string savedName);
         TC AddComponentToTerritory<TC>(string territoryId) where TC : Component;
+        TC AddComponentToNaturalDistrict<TC>(string naturalDistrictId) where TC : Component;
         IEnumerable<WorldDirection> GetTerritoryAvailableDirections(string territoryId);
     }
 }

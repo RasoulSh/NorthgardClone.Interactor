@@ -40,17 +40,26 @@ namespace Northgard.Interactor.Controllers
             _worldPipeline.NaturalDistrictPrefabs.Select(_naturalDistrictPrefabMapper.MapToTarget);
 
         public event TerritoryViewModel.TerritoryDelegate OnTerritoryAdded;
+        public event NaturalDistrictViewModel.NaturalDistrictDelegate OnNaturalDistrictAdded;
 
         [Inject]
         private void Init(IWorldEditorService worldEditor)
         {
             _worldEditor = worldEditor;
             _worldEditor.OnTerritoryAdded += _OnTerritoryAdded;
+            _worldEditor.OnNaturalDistrictAdded += _OnNaturalDistrictAdded;
         }
 
         private void _OnTerritoryAdded(ITerritoryBehaviour territoryBehaviour)
         {
             OnTerritoryAdded?.Invoke( _territoryMapper.MapToTarget(territoryBehaviour.Data));
+        }
+        
+        private void _OnNaturalDistrictAdded(ITerritoryBehaviour territory, INaturalDistrictBehaviour naturalDistrict)
+        {
+            var territoryVm = _territoryMapper.MapToTarget(territory.Data);
+            var naturalDistrictVm = _naturalDistrictMapper.MapToTarget(naturalDistrict.Data);
+            OnNaturalDistrictAdded?.Invoke(territoryVm, naturalDistrictVm);
         }
 
         public void SelectWorld(SelectWorldViewModel selectData)
@@ -198,6 +207,12 @@ namespace Northgard.Interactor.Controllers
         {
             var territory = _worldPipeline.FindTerritory(territoryId);
             return territory.AddComponent<TC>();
+        }
+
+        public TC AddComponentToNaturalDistrict<TC>(string naturalDistrictId) where TC : Component
+        {
+            var naturalDistrict = _worldPipeline.FindNaturalDistrict(naturalDistrictId);
+            return naturalDistrict.AddComponent<TC>();
         }
 
         public IEnumerable<WorldDirection> GetTerritoryAvailableDirections(string territoryId)
