@@ -200,7 +200,6 @@ namespace Northgard.Interactor.Controllers
             var worldJson = PlayerPrefs.GetString(SavedNamePrepend + savedName);
             var worldData = JsonUtility.FromJson<WorldDataset>(worldJson);
             _worldPipeline.SetWorld(worldData.world);
-            _worldEditor.World = _worldPipeline.World;
             foreach (var territory in worldData.territories)
             {
                 _worldPipeline.InstantiateTerritory(territory);
@@ -210,6 +209,7 @@ namespace Northgard.Interactor.Controllers
                 _worldPipeline.InstantiateNaturalDistrict(naturalDistrict);
             }
             _worldPipeline.Initialize();
+            _worldEditor.World = _worldPipeline.World;
             OnWorldLoaded?.Invoke();
             return _worldMapper.MapToTarget(_worldPipeline.World.Data);
         }
