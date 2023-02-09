@@ -5,6 +5,7 @@ using Northgard.GameWorld.Abstraction;
 using Northgard.GameWorld.Entities;
 using Northgard.Interactor.Common.Mapper;
 using Northgard.Interactor.ViewModels.WorldViewModels;
+using UnityEngine;
 using Zenject;
 
 namespace Northgard.Interactor.Mappers.WorldMappers
@@ -23,8 +24,9 @@ namespace Northgard.Interactor.Mappers.WorldMappers
             {
                 for (int y = 0; y < source.size.y; y++)
                 {
-                    var territoryId = source.territories[x][y];
-                    if (territoryId == null)
+                    var point = new Vector2(x, y);
+                    var territoryId = source.territories.Find(t => t.point == point).id;
+                    if (string.IsNullOrEmpty(territoryId))
                     {
                         continue;
                     }

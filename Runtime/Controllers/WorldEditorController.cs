@@ -8,7 +8,6 @@ using Northgard.GameWorld.Data;
 using Northgard.GameWorld.Entities;
 using Northgard.Interactor.Abstraction;
 using Northgard.Interactor.Common.Mapper;
-using Northgard.Interactor.Common.WorldUtilities;
 using Northgard.Interactor.Enums.WorldEnums;
 using Northgard.Interactor.ViewModels.WorldViewModels;
 using UnityEngine;
@@ -30,6 +29,18 @@ namespace Northgard.Interactor.Controllers
         [Inject] private IReadOnlyMapper<NaturalDistrict, NaturalDistrictViewModel> _naturalDistrictMapper;
         private IWorldEditorService _worldEditor;
 
+        public WorldViewModel CurrentWorld
+        {
+            get
+            {
+                if (_worldEditor.World == null)
+                {
+                    return null;
+                }
+                return _worldMapper.MapToTarget(_worldEditor.World.Data);
+            }
+        }
+
         public IEnumerable<WorldPrefabViewModel> WorldPrefabs =>
             _worldPipeline.WorldPrefabs.Select(_worldPrefabMapper.MapToTarget);
 
@@ -41,6 +52,7 @@ namespace Northgard.Interactor.Controllers
 
         public event TerritoryViewModel.TerritoryDelegate OnTerritoryAdded;
         public event NaturalDistrictViewModel.NaturalDistrictDelegate OnNaturalDistrictAdded;
+        public event IWorldEditorController.LoadDelegate OnWorldLoaded;
 
         [Inject]
         private void Init(IWorldEditorService worldEditor)
@@ -155,8 +167,6 @@ namespace Northgard.Interactor.Controllers
                     break;
             }
             newTerritory.SetPosition(sourceTerritory.Data.position + positionShift);
-            // sourceTerritory.AddTerritoryConnection(newTerritory, (GameWorld.Enums.WorldDirection)createData.Direction);
-            // newTerritory.AddTerritoryConnection(sourceTerritory, (GameWorld.Enums.WorldDirection)WorldDirectionUtil.OpposeDirection(createData.Direction));
             _worldPipeline.World.AddTerritory(newTerritory, sourceTerritory.Data.pointInWorld + pointShift);
             return _territoryMapper.MapToTarget(newTerritory.Data);
         }
@@ -200,6 +210,7 @@ namespace Northgard.Interactor.Controllers
                 _worldPipeline.InstantiateNaturalDistrict(naturalDistrict);
             }
             _worldPipeline.Initialize();
+            OnWorldLoaded?.Invoke();
             return _worldMapper.MapToTarget(_worldPipeline.World.Data);
         }
 
@@ -240,6 +251,17 @@ namespace Northgard.Interactor.Controllers
                 filteredDirections.Remove(GameWorld.Enums.WorldDirection.South);
             }
             return filteredDirections.Select(d => (WorldDirection)d);
+        }
+
+        public void RepositionNaturalDistrict(string naturalDistrictId, string territoryId, Vector3 newPosition)
+        {
+            var territory = _worldPipeline.FindTerritory(territoryId);
+            var naturalDistrict = _worldPipeline.FindNaturalDistrict(naturalDistrictId);
+            var ndExtents = naturalDistrict.Data.Bounds.extents;
+            newPosition.x = Mathf.Clamp(newPosition.x, territory.Data.Bounds.min.x + ndExtents.x, territory.Data.Bounds.max.x - ndExtents.x);
+            newPosition.y = naturalDistrict.Data.position.y;
+            newPosition.z = Mathf.Clamp(newPosition.z, territory.Data.Bounds.min.z + ndExtents.z, territory.Data.Bounds.max.z - ndExtents.z);
+            naturalDistrict.SetPosition(newPosition);
         }
     }
 }
