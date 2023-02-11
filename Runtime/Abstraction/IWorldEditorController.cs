@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Northgard.Interactor.Enums.WorldEnums;
+using Northgard.Core.Enums;
 using Northgard.Interactor.ViewModels.WorldViewModels;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ namespace Northgard.Interactor.Abstraction
         public IEnumerable<NaturalDistrictPrefabViewModel> NaturalDistrictPrefabs { get; }
         event TerritoryViewModel.TerritoryDelegate OnTerritoryAdded;
         event NaturalDistrictViewModel.NaturalDistrictDelegate OnNaturalDistrictAdded;
-        event LoadDelegate OnWorldLoaded;
+        event LoadDelegate OnWorldChanged;
         void SelectWorld(SelectWorldViewModel selectData);
         TerritoryViewModel SelectFirstTerritory(SelectFirstTerritoryViewModel selectData);
         TerritoryViewModel NewTerritory(CreateTerritoryViewModel createData);

@@ -1,6 +1,4 @@
-﻿using Northgard.GameWorld.Entities;
-
-namespace Northgard.Interactor.ViewModels.WorldViewModels
+﻿namespace Northgard.Interactor.ViewModels.WorldViewModels
 {
     public class SelectWorldViewModel
     {

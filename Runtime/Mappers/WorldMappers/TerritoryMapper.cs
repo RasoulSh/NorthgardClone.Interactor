@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using JetBrains.Annotations;
-using Northgard.Core.Abstraction.Localization;
+using Northgard.Core.Infrastructure.Localization;
+using Northgard.Core.Infrastructure.Mapper;
+using Northgard.Enterprise.Entities.WorldEntities;
 using Northgard.GameWorld.Abstraction;
-using Northgard.GameWorld.Entities;
-using Northgard.Interactor.Common.Mapper;
 using Northgard.Interactor.ViewModels.WorldViewModels;
 using Zenject;
 

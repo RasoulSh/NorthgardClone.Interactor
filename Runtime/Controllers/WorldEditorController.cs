@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Northgard.Core.Enums;
+using Northgard.Core.Infrastructure.Mapper;
+using Northgard.Enterprise.Entities.WorldEntities;
 using Northgard.GameWorld.Abstraction;
 using Northgard.GameWorld.Abstraction.Behaviours;
-using Northgard.GameWorld.Data;
-using Northgard.GameWorld.Entities;
 using Northgard.Interactor.Abstraction;
-using Northgard.Interactor.Common.Mapper;
-using Northgard.Interactor.Enums.WorldEnums;
 using Northgard.Interactor.ViewModels.WorldViewModels;
 using UnityEngine;
 using Zenject;
-using ILogger = Northgard.Core.Abstraction.Logger.ILogger;
+using ILogger = Northgard.Core.Infrastructure.Logger.ILogger;
+
 
 namespace Northgard.Interactor.Controllers
 {
@@ -52,7 +52,7 @@ namespace Northgard.Interactor.Controllers
 
         public event TerritoryViewModel.TerritoryDelegate OnTerritoryAdded;
         public event NaturalDistrictViewModel.NaturalDistrictDelegate OnNaturalDistrictAdded;
-        public event IWorldEditorController.LoadDelegate OnWorldLoaded;
+        public event IWorldEditorController.LoadDelegate OnWorldChanged;
 
         [Inject]
         private void Init(IWorldEditorService worldEditor)
@@ -60,6 +60,12 @@ namespace Northgard.Interactor.Controllers
             _worldEditor = worldEditor;
             _worldEditor.OnTerritoryAdded += _OnTerritoryAdded;
             _worldEditor.OnNaturalDistrictAdded += _OnNaturalDistrictAdded;
+            _worldEditor.OnWorldChanged += _OnWorldChanged;
+        }
+
+        private void _OnWorldChanged(IWorldBehaviour worldBehaviour)
+        {
+            OnWorldChanged?.Invoke();
         }
 
         private void _OnTerritoryAdded(ITerritoryBehaviour territoryBehaviour)
@@ -181,24 +187,19 @@ namespace Northgard.Interactor.Controllers
             return _naturalDistrictMapper.MapToTarget(newNaturalDistrict.Data);
         }
 
-        private const string SavedNamePrepend = "WorldMap_";
-
         public void SaveWorld(string savedName)
         {
-            var worldDataset = new WorldDataset()
-            {
-                world = _worldPipeline.World.Data,
-                territories = _worldPipeline.Territories.Select(t => t.Data).ToList(),
-                naturalDistricts = _worldPipeline.NaturalDistricts.Select(nd => nd.Data).ToList()
-            };
-            var worldJson = JsonUtility.ToJson(worldDataset);
-            PlayerPrefs.SetString(SavedNamePrepend + savedName, worldJson);
+            _worldEditor.SaveWorld(savedName);
         }
 
         public WorldViewModel LoadWorld(string savedName)
         {
-            var worldJson = PlayerPrefs.GetString(SavedNamePrepend + savedName);
-            var worldData = JsonUtility.FromJson<WorldDataset>(worldJson);
+            var worldData = _worldEditor.LoadWorld(savedName);
+            if (worldData == null)
+            {
+                _logger.LogError("The world doesn't exist : " + savedName, this);
+                return null;
+            }
             _worldPipeline.SetWorld(worldData.world);
             foreach (var territory in worldData.territories)
             {
@@ -210,7 +211,6 @@ namespace Northgard.Interactor.Controllers
             }
             _worldPipeline.Initialize();
             _worldEditor.World = _worldPipeline.World;
-            OnWorldLoaded?.Invoke();
             return _worldMapper.MapToTarget(_worldPipeline.World.Data);
         }
 
@@ -228,29 +228,29 @@ namespace Northgard.Interactor.Controllers
 
         public IEnumerable<WorldDirection> GetTerritoryAvailableDirections(string territoryId)
         {
-            var filteredDirections = (Enum.GetValues(typeof(GameWorld.Enums.WorldDirection)) as GameWorld.Enums.WorldDirection[]).ToList();
+            var filteredDirections = (Enum.GetValues(typeof(WorldDirection)) as WorldDirection[]).ToList();
             var world = _worldPipeline.World;
             var worldTerritories = world.Territories;
             var territory = _worldPipeline.FindTerritory(territoryId);
             var pointInWorld = territory.Data.pointInWorld;
             if (pointInWorld.x == world.Data.size.x - 1 || worldTerritories[pointInWorld.x + 1][pointInWorld.y] != null)
             {
-                filteredDirections.Remove(GameWorld.Enums.WorldDirection.East);
+                filteredDirections.Remove(WorldDirection.East);
             }
             if (pointInWorld.x == 0 || worldTerritories[pointInWorld.x - 1][pointInWorld.y] != null)
             {
-                filteredDirections.Remove(GameWorld.Enums.WorldDirection.West);
+                filteredDirections.Remove(WorldDirection.West);
             }
             if (pointInWorld.y == world.Data.size.y - 1 || worldTerritories[pointInWorld.x][pointInWorld.y + 1] != null)
             {
-                filteredDirections.Remove(GameWorld.Enums.WorldDirection.North);
+                filteredDirections.Remove(WorldDirection.North);
             }
 
             if (pointInWorld.y == 0 || worldTerritories[pointInWorld.x][pointInWorld.y - 1] != null)
             {
-                filteredDirections.Remove(GameWorld.Enums.WorldDirection.South);
+                filteredDirections.Remove(WorldDirection.South);
             }
-            return filteredDirections.Select(d => (WorldDirection)d);
+            return filteredDirections;
         }
 
         public void RepositionNaturalDistrict(string naturalDistrictId, string territoryId, Vector3 newPosition)

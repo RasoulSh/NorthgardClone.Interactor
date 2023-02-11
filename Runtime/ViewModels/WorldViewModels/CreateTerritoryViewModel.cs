@@ -1,4 +1,4 @@
-﻿using Northgard.Interactor.Enums.WorldEnums;
+﻿using Northgard.Core.Enums;
 
 namespace Northgard.Interactor.ViewModels.WorldViewModels
 {

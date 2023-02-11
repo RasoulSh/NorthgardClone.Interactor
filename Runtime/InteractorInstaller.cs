@@ -1,6 +1,6 @@
-﻿using Northgard.GameWorld.Entities;
+﻿using Northgard.Core.Infrastructure.Mapper;
+using Northgard.Enterprise.Entities.WorldEntities;
 using Northgard.Interactor.Abstraction;
-using Northgard.Interactor.Common.Mapper;
 using Northgard.Interactor.Controllers;
 using Northgard.Interactor.Mappers.WorldMappers;
 using Northgard.Interactor.ViewModels.WorldViewModels;
