@@ -16,14 +16,14 @@ namespace Northgard.Interactor.Mappers.WorldMappers
         {
             return new WorldPrefabViewModel()
             {
-                PrefabId = source.PrefabId,
-                Title = source.Title
+                PrefabId = source.prefabId,
+                Title = source.title
             };
         }
 
         public World MapToSource(WorldPrefabViewModel target)
         {
-            return _worldPipeline.WorldPrefabs.First(wp => wp.PrefabId == target.PrefabId);
+            return _worldPipeline.WorldPrefabs.First(wp => wp.prefabId == target.PrefabId);
         }
     }
 }

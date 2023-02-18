@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using Northgard.Core.Enums;
+using Northgard.Core.GameObjectBase;
+using Northgard.GameWorld.Abstraction.Behaviours;
 using Northgard.Interactor.ViewModels.WorldViewModels;
 using UnityEngine;
 
@@ -17,13 +19,14 @@ namespace Northgard.Interactor.Abstraction
         void SelectWorld(SelectWorldViewModel selectData);
         TerritoryViewModel SelectFirstTerritory(SelectFirstTerritoryViewModel selectData);
         TerritoryViewModel NewTerritory(CreateTerritoryViewModel createData);
-        NaturalDistrictViewModel NewNaturalDistrict(CreateNaturalDistrictViewModel createData);
+        void NewNaturalDistrict(CreateNaturalDistrictViewModel createData);
         void SaveWorld(string savedName);
         WorldViewModel LoadWorld(string savedName);
         TC AddComponentToTerritory<TC>(string territoryId) where TC : Component;
         TC AddComponentToNaturalDistrict<TC>(string naturalDistrictId) where TC : Component;
+        GameObject GenerateFakeNaturalDistrict(string prefabId);
         IEnumerable<WorldDirection> GetTerritoryAvailableDirections(string territoryId);
-        public void RepositionNaturalDistrict(string naturalDistrictId, string territoryId, Vector3 newPosition);
+        void RepositionNaturalDistrict(string naturalDistrictId, string territoryId, Vector3 newPosition);
         public delegate void LoadDelegate();
     }
 }

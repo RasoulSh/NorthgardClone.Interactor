@@ -16,14 +16,14 @@ namespace Northgard.Interactor.Mappers.WorldMappers
         {
             return new NaturalDistrictPrefabViewModel()
             {
-                PrefabId = source.PrefabId,
-                Title = source.Title
+                PrefabId = source.prefabId,
+                Title = source.title
             };
         }
 
         public NaturalDistrict MapToSource(NaturalDistrictPrefabViewModel target)
         {
-            return _worldPipeline.NaturalDistrictPrefabs.First(ndp => ndp.PrefabId == target.PrefabId);
+            return _worldPipeline.NaturalDistrictPrefabs.First(ndp => ndp.prefabId == target.PrefabId);
         }
     }
 }

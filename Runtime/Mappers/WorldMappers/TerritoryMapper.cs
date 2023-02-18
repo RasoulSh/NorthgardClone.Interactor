@@ -23,7 +23,8 @@ namespace Northgard.Interactor.Mappers.WorldMappers
             return new TerritoryViewModel()
             {
                 Id = source.id,
-                Name = _localization.GetText(source.Title),
+                Name = _localization.GetText(source.title),
+                Bounds = source.Bounds,
                 NaturalDistricts = naturalDistricts.Select(_naturalDistrictMapper.MapToTarget).ToList()
             };
         }

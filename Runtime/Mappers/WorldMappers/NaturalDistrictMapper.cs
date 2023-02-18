@@ -17,7 +17,7 @@ namespace Northgard.Interactor.Mappers.WorldMappers
             return new NaturalDistrictViewModel()
             {
                 Id = source.id,
-                Name = _localization.GetText(source.Title),
+                Name = _localization.GetText(source.title),
                 Position = source.position,
                 Rotation = source.rotation,
                 NaturalResourceName = _localization.GetText(source.naturalResource.ToString())

@@ -177,14 +177,14 @@ namespace Northgard.Interactor.Controllers
             return _territoryMapper.MapToTarget(newTerritory.Data);
         }
 
-        public NaturalDistrictViewModel NewNaturalDistrict(CreateNaturalDistrictViewModel createData)
+        public void NewNaturalDistrict(CreateNaturalDistrictViewModel createData)
         {
             var territory = _worldPipeline.FindTerritory(createData.TerritoryId);
             var naturalDistrictPrefab = _naturalDistrictPrefabMapper.MapToSource(createData.Prefab);
-            var newNaturalDistrict = _worldPipeline.InstantiateNaturalDistrict(naturalDistrictPrefab);
-            newNaturalDistrict.SetPosition(territory.Data.position +  Vector3.up * newNaturalDistrict.Data.Bounds.extents.y);
+            var newNaturalDistrict =_worldPipeline.InstantiateNaturalDistrict(naturalDistrictPrefab);
+            newNaturalDistrict.SetPosition(createData.Position);
+            newNaturalDistrict.SetRotation(createData.Rotation);
             territory.AddNaturalDistrict(newNaturalDistrict);
-            return _naturalDistrictMapper.MapToTarget(newNaturalDistrict.Data);
         }
 
         public void SaveWorld(string savedName)
@@ -226,6 +226,11 @@ namespace Northgard.Interactor.Controllers
             return naturalDistrict.AddComponent<TC>();
         }
 
+        public GameObject GenerateFakeNaturalDistrict(string prefabId)
+        {
+            return _worldPipeline.GenerateFakeNaturalDistrict(prefabId);
+        }
+
         public IEnumerable<WorldDirection> GetTerritoryAvailableDirections(string territoryId)
         {
             var filteredDirections = (Enum.GetValues(typeof(WorldDirection)) as WorldDirection[]).ToList();
@@ -257,11 +262,31 @@ namespace Northgard.Interactor.Controllers
         {
             var territory = _worldPipeline.FindTerritory(territoryId);
             var naturalDistrict = _worldPipeline.FindNaturalDistrict(naturalDistrictId);
+            RepositionNaturalDistrict(naturalDistrict, territory, newPosition);
+        }
+        
+        private void RepositionNaturalDistrict(INaturalDistrictBehaviour naturalDistrict, ITerritoryBehaviour territory, Vector3 newPosition)
+        {
             var ndExtents = naturalDistrict.Data.Bounds.extents;
             newPosition.x = Mathf.Clamp(newPosition.x, territory.Data.Bounds.min.x + ndExtents.x, territory.Data.Bounds.max.x - ndExtents.x);
             newPosition.y = naturalDistrict.Data.position.y;
             newPosition.z = Mathf.Clamp(newPosition.z, territory.Data.Bounds.min.z + ndExtents.z, territory.Data.Bounds.max.z - ndExtents.z);
             naturalDistrict.SetPosition(newPosition);
         }
+
+        // private void Update()
+        // {
+        //     if (_worldPipeline.NaturalDistrictLocator == null)
+        //     {
+        //         return;
+        //     }
+        //     var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //     var isHit = Physics.Raycast(ray, out RaycastHit hit);
+        //     if (isHit == false)
+        //     {
+        //         return;
+        //     }
+        //     
+        // }
     }
 }

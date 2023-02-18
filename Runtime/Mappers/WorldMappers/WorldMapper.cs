@@ -38,7 +38,7 @@ namespace Northgard.Interactor.Mappers.WorldMappers
             return new WorldViewModel()
             {
                 Id = source.id,
-                Name = source.Title,
+                Name = source.title,
                 Territories = territories.Select(_territoryMapper.MapToTarget).ToList()
             };
         }

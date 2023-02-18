@@ -7,6 +7,7 @@ namespace Northgard.Interactor.ViewModels.WorldViewModels
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        public Bounds Bounds { get; set; }
         public List<NaturalDistrictViewModel> NaturalDistricts { get; set; }
         public delegate void TerritoryDelegate(TerritoryViewModel territoryViewModel);
     }
