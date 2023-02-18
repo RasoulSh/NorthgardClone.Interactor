@@ -20,6 +20,8 @@ namespace Northgard.Interactor.Abstraction
         TerritoryViewModel SelectFirstTerritory(SelectFirstTerritoryViewModel selectData);
         TerritoryViewModel NewTerritory(CreateTerritoryViewModel createData);
         void NewNaturalDistrict(CreateNaturalDistrictViewModel createData);
+        void RemoveTerritory(string id);
+        void RemoveNaturalDistrict(string id);
         void SaveWorld(string savedName);
         WorldViewModel LoadWorld(string savedName);
         TC AddComponentToTerritory<TC>(string territoryId) where TC : Component;

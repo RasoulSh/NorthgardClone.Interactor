@@ -187,6 +187,16 @@ namespace Northgard.Interactor.Controllers
             territory.AddNaturalDistrict(newNaturalDistrict);
         }
 
+        public void RemoveTerritory(string id)
+        {
+            _worldPipeline.DestroyTerritory(id);
+        }
+
+        public void RemoveNaturalDistrict(string id)
+        {
+            _worldPipeline.DestroyNaturalDistrict(id);
+        }
+
         public void SaveWorld(string savedName)
         {
             _worldEditor.SaveWorld(savedName);
